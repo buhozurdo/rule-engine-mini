@@ -1,0 +1,33 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "buhozurdo-rule-engine-mini"
+version = "0.1.0"
+description = "Deterministic AST business rules evaluator in pure Python — Zero eval(), sub-microsecond latency, safe JSON logic."
+readme = "README.md"
+license = { text = "MIT" }
+authors = [
+    { name = "Búho Zurdo", email = "dev@buhozurdo.com" },
+    { name = "Juan Rael Corrales Arellano", email = "rael@buhozurdo.com" }
+]
+keywords = ["rule-engine", "json-logic", "ast", "zero-eval", "deterministic", "fintech", "healthtech"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Security"
+]
+requires-python = ">=3.9"
+dependencies = []
+
+[project.urls]
+Homepage = "https://buhozurdo.com/blog/rule-engine-mini-json-logic/"
+Repository = "https://github.com/buhozurdo/rule-engine-mini"
