@@ -44,6 +44,7 @@ We adhere to [Semantic Versioning 2.0.0](https://semver.org/) and PEP 440:
 
 | Git Tag | Release Date | Target Commit | Channel | Release Summary |
 | :--- | :---: | :---: | :---: | :--- |
+| [`v0.2.1`](#v021-pypi-package-metadata-alignment--release-automation-patch) | 2026-11-16 | `v0.2.1` | **Patch** | PyPI Deployment Metadata Alignment & Release CI Workflow Enhancement |
 | [`v0.2.0`](#v020-deterministic-ast-engine-sub-microsecond-latency-extended-json-logic--sonar-hardening) | 2026-11-16 | `v0.2.0` | **GA** | Deterministic AST Engine, Sub-microsecond Latency, Extended JSON Logic, DoS Shield & Sonar Hardening |
 
 ---
@@ -98,6 +99,28 @@ We adhere to [Semantic Versioning 2.0.0](https://semver.org/) and PEP 440:
 ---
 
 ## 🚀 Release History & Release Notes
+
+## v0.2.1: PyPI Package Metadata Alignment & Release Automation Patch
+
+> 🏷️ **Git Tag:** `v0.2.1` | 📅 **Release Date:** `2026-11-16` | 🔗 **Target Ref:** `v0.2.1` | 📦 **Release Channel:** `Patch Maintenance`  
+> 🔀 **PR Title:** `fix(release): align PyPI environment URL and prepare v0.2.1 patch release`  
+> 📝 **PR Description:** Maintenance patch aligning deployment environment URL for PyPI Trusted Publishing in GitHub Actions (`.github/workflows/release.yml`), bumping package version to `0.2.1` across `pyproject.toml` and `src/rule_engine_mini/__init__.py`, and updating the official release registry.
+
+This patch release addresses metadata synchronization for the automated PyPI deployment pipeline.
+
+---
+
+### ⚡ Key Changes & Fixes:
+
+* **CI/CD & Deployment Environment Alignment:**
+  * Updated `.github/workflows/release.yml` environment target URL to point directly to `https://pypi.org/p/rule-engine-mini`.
+  * Verified OIDC Trusted Publisher authentication compatibility for automated release publishing on GitHub release triggers.
+
+* **Versioning & Packaging:**
+  * Version incremented from `0.2.0` to `0.2.1` in `pyproject.toml` and `src/rule_engine_mini/__init__.py`.
+  * Preserved 100% test coverage (19/19 unit tests passing) and sub-microsecond latency benchmarks.
+
+---
 
 ## v0.2.0: Deterministic AST Engine, Sub-microsecond Latency, Extended JSON Logic & Sonar Hardening
 
