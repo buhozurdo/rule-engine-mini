@@ -1,4 +1,4 @@
-# Mini Rule Engine (buhozurdo-rule-engine-mini)
+# Mini Rule Engine (rule-engine-mini)
 
 <p align="center">
   <strong>Deterministic AST business rules evaluator in pure Python.</strong><br>
@@ -6,8 +6,8 @@
 </p>
 
 <p align="center">
-  <a href="https://pypi.org/project/buhozurdo-rule-engine-mini/"><img src="https://img.shields.io/pypi/v/buhozurdo-rule-engine-mini.svg?style=flat-square&color=blue" alt="PyPI Version"></a>
-  <a href="https://pypi.org/project/buhozurdo-rule-engine-mini/"><img src="https://img.shields.io/pypi/pyversions/buhozurdo-rule-engine-mini.svg?style=flat-square" alt="Python Versions"></a>
+  <a href="https://pypi.org/project/rule-engine-mini/"><img src="https://img.shields.io/pypi/v/rule-engine-mini.svg?style=flat-square&color=blue" alt="PyPI Version"></a>
+  <a href="https://pypi.org/project/rule-engine-mini/"><img src="https://img.shields.io/pypi/pyversions/rule-engine-mini.svg?style=flat-square" alt="Python Versions"></a>
   <img src="https://img.shields.io/badge/coverage-100%25-brightgreen.svg?style=flat-square" alt="100% Core Coverage">
   <img src="https://img.shields.io/badge/dependencies-0-brightgreen.svg?style=flat-square" alt="Zero Dependencies">
   <img src="https://img.shields.io/badge/security-zero--eval-success.svg?style=flat-square" alt="Zero eval">
@@ -62,7 +62,7 @@ A **lightweight, auditable, pure Python** evaluator that parses declarative JSON
 ## 🚀 Installation
 
 ```bash
-pip install buhozurdo-rule-engine-mini
+pip install rule-engine-mini
 ```
 
 *Requirements: Python 3.9+ (Zero external dependencies).*

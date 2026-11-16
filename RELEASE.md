@@ -1,4 +1,4 @@
-# Release Process & Guidelines — buhozurdo-rule-engine-mini
+# Release Process & Guidelines — rule-engine-mini
 
 This document outlines the branching strategy, release train pipeline, tagging conventions, step-by-step checklist, and the complete registry of release notes for all published tags.
 
@@ -44,6 +44,7 @@ We adhere to [Semantic Versioning 2.0.0](https://semver.org/) and PEP 440:
 
 | Git Tag | Release Date | Target Commit | Channel | Release Summary |
 | :--- | :---: | :---: | :---: | :--- |
+| [`v0.2.2`](#v022-pypi-package-name-alignment-to-rule-engine-mini--wheel-distribution-patch) | 2026-11-16 | `v0.2.2` | **Patch** | Official PyPI Package Name (`rule-engine-mini`), Wheel Distribution & Metadata Synchronization |
 | [`v0.2.1`](#v021-pypi-package-metadata-alignment--release-automation-patch) | 2026-11-16 | `v0.2.1` | **Patch** | PyPI Deployment Metadata Alignment & Release CI Workflow Enhancement |
 | [`v0.2.0`](#v020-deterministic-ast-engine-sub-microsecond-latency-extended-json-logic--sonar-hardening) | 2026-11-16 | `v0.2.0` | **GA** | Deterministic AST Engine, Sub-microsecond Latency, Extended JSON Logic, DoS Shield & Sonar Hardening |
 
@@ -99,6 +100,34 @@ We adhere to [Semantic Versioning 2.0.0](https://semver.org/) and PEP 440:
 ---
 
 ## 🚀 Release History & Release Notes
+
+## v0.2.2: PyPI Package Name Alignment to `rule-engine-mini` & Wheel Distribution Patch
+
+> 🏷️ **Git Tag:** `v0.2.2` | 📅 **Release Date:** `2026-11-16` | 🔗 **Target Ref:** `v0.2.2` | 📦 **Release Channel:** `Patch Maintenance`  
+> 🔀 **PR Title:** `fix(packaging): align package name to rule-engine-mini on PyPI and build wheel distributions`  
+> 📝 **PR Description:** Fixes PyPI package distribution name to `rule-engine-mini` in `pyproject.toml`, ensuring built wheel artifacts (`rule_engine_mini-0.2.2-py3-none-any.whl`) match the project registered with PyPI Trusted Publishing. Updates documentation, installation commands, badges, and module docstring.
+
+This release formally establishes `rule-engine-mini` as the official canonical package distribution name on the Python Package Index (PyPI).
+
+---
+
+### ⚡ Key Changes & Fixes:
+
+* **Package Distribution Name Alignment:**
+  * Updated `[project] name` to `"rule-engine-mini"` in `pyproject.toml`.
+  * Validated build artifacts: `python -m build` now generates `rule_engine_mini-0.2.2-py3-none-any.whl` and `rule_engine_mini-0.2.2.tar.gz`.
+  * Full alignment with PyPI Trusted Publisher authentication (`https://pypi.org/p/rule-engine-mini`).
+
+* **Documentation & Badges:**
+  * Updated installation instructions in `README.md` to `pip install rule-engine-mini`.
+  * Updated PyPI version and python-version shields in `README.md`.
+  * Updated package docstring in `src/rule_engine_mini/__init__.py`.
+
+* **Versioning & Verification:**
+  * Version bumped to `0.2.2` across `pyproject.toml` and `src/rule_engine_mini/__init__.py`.
+  * 100% test coverage maintained (19/19 unit tests passing, zero regressions).
+
+---
 
 ## v0.2.1: PyPI Package Metadata Alignment & Release Automation Patch
 
