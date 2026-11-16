@@ -21,12 +21,11 @@ jobs:
         with:
           python-version: "3.11"
           cache: "pip"
-          cache-dependency-path: "requirements-lock.txt"
+          cache-dependency-path: "requirements.txt"
 
       - name: Install dependencies
         run: |
-          pip install --only-binary :all: -r requirements-lock.txt
-          pip install --only-binary :all: --no-deps -e .
+          pip install --only-binary :all: -r requirements.txt
 
       - name: Run tests
         run: python -m pytest tests/ --cov=rule_engine_mini --cov-branch --cov-report=xml
