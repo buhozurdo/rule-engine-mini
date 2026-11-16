@@ -41,3 +41,11 @@ dev = [
 [project.urls]
 Homepage = "https://buhozurdo.com/blog/rule-engine-mini-json-logic/"
 Repository = "https://github.com/buhozurdo/rule-engine-mini"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/rule_engine_mini"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+
