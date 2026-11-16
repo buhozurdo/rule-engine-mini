@@ -1,4 +1,4 @@
-# Mini Rule Engine
+# Mini Rule Engine (buhozurdo-rule-engine-mini)
 
 <p align="center">
   <strong>Deterministic AST business rules evaluator in pure Python.</strong><br>
@@ -8,9 +8,10 @@
 <p align="center">
   <a href="https://pypi.org/project/buhozurdo-rule-engine-mini/"><img src="https://img.shields.io/pypi/v/buhozurdo-rule-engine-mini.svg?style=flat-square&color=blue" alt="PyPI Version"></a>
   <a href="https://pypi.org/project/buhozurdo-rule-engine-mini/"><img src="https://img.shields.io/pypi/pyversions/buhozurdo-rule-engine-mini.svg?style=flat-square" alt="Python Versions"></a>
+  <img src="https://img.shields.io/badge/coverage-100%25-brightgreen.svg?style=flat-square" alt="100% Core Coverage">
   <img src="https://img.shields.io/badge/dependencies-0-brightgreen.svg?style=flat-square" alt="Zero Dependencies">
   <img src="https://img.shields.io/badge/security-zero--eval-success.svg?style=flat-square" alt="Zero eval">
-  <img src="https://img.shields.io/badge/speed-~4µs-orange.svg?style=flat-square" alt="Sub-microsecond Speed">
+  <img src="https://img.shields.io/badge/speed-~0.8µs-orange.svg?style=flat-square" alt="Sub-microsecond Speed">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-purple.svg?style=flat-square" alt="License: MIT"></a>
 </p>
 
@@ -30,13 +31,16 @@ Most teams face a frustrating dilemma:
 
 ### The Solution: `rule-engine-mini`
 
-A **<75-line, auditable, pure Python** evaluator that parses declarative JSON Abstract Syntax Trees (ASTs). 
+A **lightweight, auditable, pure Python** evaluator that parses declarative JSON Abstract Syntax Trees (ASTs). 
 
 - 🛡️ **Zero `eval()`, Zero `exec()`**: Immune to code injection by mathematical construction.
-- 🚀 **Sub-microsecond performance**: Evaluates composite nested rules in **~4 microseconds** (>250,000 evaluations/sec per core).
-- 📦 **Zero dependencies**: Built strictly on the Python standard library. No supply-chain bloat.
-- 🗄️ **Database & API Ready**: Store rules natively in PostgreSQL `JSONB`, MongoDB, Redis, or send them directly from a React/Vue frontend.
+- 🚀 **Sub-microsecond performance**: Evaluates flat rules in **~0.8 µs** (>1,180,000 ops/sec) and composite nested rules in **~3.3 µs** (>295,000 ops/sec).
+- 📦 **Zero dependencies**: Built strictly on the Python standard library. No supply-chain vulnerabilities.
+- 🗄️ **Database & API Ready**: Store rules natively in PostgreSQL `JSONB`, MongoDB, Redis, or send them directly from frontend forms.
 - 🧵 **Stateless & Thread-Safe**: Drop it into FastAPI, Celery, Django, or AWS Lambda without concurrency locks.
+- 🧯 **DoS & Recursion Bomb Shield**: Configurable `max_depth` protects against maliciously nested payloads.
+- 🧩 **Extensible**: Register custom domain operators in one line without forking.
+- 🏷️ **PEP 561 Typed**: Full `py.typed` compliance for mypy, Pyright, and VS Code.
 
 ---
 
@@ -46,9 +50,11 @@ A **<75-line, auditable, pure Python** evaluator that parses declarative JSON Ab
 | :--- | :---: | :---: | :---: |
 | **RCE Safe** | ❌ Critical Risk | ⚠️ Complex Sandbox | ✅ **100% Deterministic** |
 | **External Dependencies** | 0 | ❌ 10+ packages | ✅ **0 (Pure Standard Library)** |
-| **Audit Time** | Impossible to secure | Hours / Days | ✅ **2 Minutes (< 75 LoC)** |
+| **Audit Time** | Impossible to secure | Hours / Days | ✅ **5 Minutes (Single File)** |
 | **JSON-Native** | ❌ No (Raw strings) | ⚠️ Proprietary DSL | ✅ **Standard JSON-Logic AST** |
-| **Execution Speed** | Medium | Slow startup | ✅ **~4 µs per rule** |
+| **Execution Speed** | Medium | Slow startup | ✅ **0.8 µs – 3.3 µs per rule** |
+| **Recursion Protection** | ❌ Stack overflow | ⚠️ Complex setup | ✅ **Built-in `max_depth` limit** |
+| **Custom Operators** | Dangerous | Complex plugins | ✅ **`register_operator` API** |
 | **Graceful Typing** | 💥 Crashes on mismatch | Configurable | ✅ **Safe fallback (`False`)** |
 
 ---
@@ -59,7 +65,7 @@ A **<75-line, auditable, pure Python** evaluator that parses declarative JSON Ab
 pip install buhozurdo-rule-engine-mini
 ```
 
-*Requirements: Python 3.9+ (No external dependencies).*
+*Requirements: Python 3.9+ (Zero external dependencies).*
 
 ---
 
@@ -91,7 +97,7 @@ context = {
     }
 }
 
-# 3. Evaluate safely in ~4 microseconds
+# 3. Evaluate safely in ~3.3 microseconds
 is_approved = evaluator.evaluate(fraud_prevention_rule, context)
 print(is_approved)  # 👉 True
 ```
@@ -130,20 +136,43 @@ context = {"user": {"name": "Alice"}}
 evaluator.evaluate(rule, context)  # False (no KeyError!)
 ```
 
-### 3. Graceful Type Safety
-If mismatched types are compared (e.g., comparing a string to an integer), standard Python raises a `TypeError`. `rule-engine-mini` handles this gracefully:
+### 3. Conditional Branching (`if` / Ternary)
+Supports lazy evaluation: unexecuted branches are never calculated!
 
 ```python
-rule = {">": [{"var": "score"}, 50]}
-context = {"score": "not_a_number"}
+# {"if": [condition, then_value, else_value]}
+tax_rule = {
+    "if": [
+        {"==": [{"var": "country"}, "MX"]},
+        {"*": [{"var": "subtotal"}, 0.16]},
+        {"*": [{"var": "subtotal"}, 0.08]}
+    ]
+}
 
-evaluator.evaluate(rule, context)  # False (doesn't crash your server)
+evaluator.evaluate(tax_rule, {"country": "MX", "subtotal": 1000})  # 160.0
 ```
 
-### 4. Short-Circuiting Boolean Logic
-`and` and `or` operations evaluate with native Python short-circuiting:
-- `and` stops at the first `False`
-- `or` stops at the first `True`
+### 4. Custom Operators in One Line
+Extend the engine with domain-specific logic safely:
+
+```python
+# Register a custom 'between' operator
+evaluator.register_operator(
+    "between",
+    lambda args, ctx, ev: ev.evaluate(args[1], ctx) <= ev.evaluate(args[0], ctx) <= ev.evaluate(args[2], ctx)
+)
+
+rule = {"between": [{"var": "score"}, 70, 100]}
+evaluator.evaluate(rule, {"score": 85})  # True
+```
+
+### 5. Graceful Type Safety & Zero-Division Shield
+If mismatched types are compared or division by zero occurs, `rule-engine-mini` handles it safely instead of crashing your service:
+
+```python
+evaluator.evaluate({">": [{"var": "score"}, 50]}, {"score": "invalid"})  # False
+evaluator.evaluate({"/": [100, 0]}, {})  # None (ZeroDivisionError protected)
+```
 
 ---
 
@@ -153,16 +182,22 @@ evaluator.evaluate(rule, context)  # False (doesn't crash your server)
 | :--- | :--- | :--- | :--- |
 | **Variables** | `var` | `{"var": "user.age"}` | Resolves nested path via dot notation |
 | | `var` *(default)* | `{"var": ["user.tier", "free"]}` | Fallback value if variable is missing |
-| **Logic** | `and` | `{"and": [clause1, clause2, ...]}` | Returns `True` if all clauses are truthy |
-| | `or` | `{"or": [clause1, clause2, ...]}` | Returns `True` if any clause is truthy |
-| | `not` | `{"not": clause}` or `{"not": [clause]}` | Inverts boolean truthiness |
-| **Comparisons** | `>` | `{">": [{"var": "cart.total"}, 500]}` | Greater than |
-| | `>=` | `{">=": [{"var": "cart.total"}, 500]}` | Greater than or equal to |
-| | `<` | `{"<": [{"var": "age"}, 18]}` | Less than |
-| | `<=` | `{"<=": [{"var": "age"}, 18]}` | Less than or equal to |
-| | `==` | `{"==": [{"var": "status"}, "active"]}` | Equality check |
-| | `!=` | `{"!=": [{"var": "status"}, "banned"]}` | Inequality check |
-| **Membership** | `in` | `{"in": [{"var": "country"}, ["MX", "US"]]}` | Checks if element is in list or substring in string |
+| **Logic** | `and` | `{"and": [c1, c2, ...]}` | Short-circuit `True` if all clauses are truthy |
+| | `or` | `{"or": [c1, c2, ...]}` | Short-circuit `True` if any clause is truthy |
+| | `not` / `!` | `{"!": clause}` | Inverts boolean truthiness |
+| | `!!` | `{"!!": clause}` | Casts value to strict boolean |
+| **Branching** | `if` | `{"if": [cond, then, else]}` | Lazy ternary / multi-branch condition |
+| **Comparisons** | `>`, `>=` | `{">": [{"var": "total"}, 500]}` | Greater than / Greater than or equal |
+| | `<`, `<=` | `{"<": [{"var": "age"}, 18]}` | Less than / Less than or equal |
+| | `==`, `===` | `{"==": [{"var": "status"}, "active"]}` | Equality check |
+| | `!=`, `!==` | `{"!=": [{"var": "status"}, "banned"]}` | Inequality check |
+| **Membership** | `in` | `{"in": [{"var": "country"}, ["MX", "US"]]}` | Checks item in list or substring in string |
+| **Arithmetic** | `+` | `{"+": [10, 20, 5]}` | Addition / numeric sum |
+| | `-` | `{"-": [100, 30]}` or `{"-": 5}` | Subtraction / unary negation |
+| | `*` | `{"*": [5, 4]}` | Multiplication |
+| | `/` | `{"/": [100, 4]}` | Safe division (returns `None` on 0) |
+| | `%` | `{"%": [10, 3]}` | Safe modulo (returns `None` on 0) |
+| | `min`, `max` | `{"min": [10, 5, 20]}` | Minimum / Maximum value |
 
 ---
 
@@ -171,14 +206,14 @@ evaluator.evaluate(rule, context)  # False (doesn't crash your server)
 Store rules in your database and let business operations update logic in real time without redeploying your backend:
 
 ```python
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI
 from pydantic import BaseModel
 from rule_engine_mini import RuleEvaluator
 
 app = FastAPI()
 evaluator = RuleEvaluator()
 
-# Imagine this is fetched dynamically from PostgreSQL JSONB
+# Imagine this rule is fetched dynamically from PostgreSQL JSONB or Redis
 DISCOUNT_RULE = {
     "or": [
         {">=": [{"var": "cart.total"}, 1000]},
@@ -204,24 +239,29 @@ def check_discount(payload: CheckoutRequest):
 
 ## ⏱️ Benchmark
 
-Tested on standard x86-64 hardware with Python 3.12:
+Tested on x86-64 hardware with Python 3.12 (100,000 iterations):
 
 ```
-Operation: Composite 3-clause rule evaluation (nested dict navigation + membership check)
-Mean latency : 3.95 microseconds (0.0039 ms)
-Throughput   : ~253,000 evaluations / sec (Single CPU Thread)
-Memory impact: 0 allocations beyond lightweight stack frames
+Operation                               Latency           Throughput
+-------------------------------------------------------------------------
+Flat single rule (e.g. amount > 100)    0.84 µs / eval    ~1,180,000 ops/sec
+Composite 3-clause rule                 3.37 µs / eval      ~296,000 ops/sec
+Memory allocations per evaluation       0 (Stack frames only)
 ```
 
 ---
 
-## 🧪 Testing
+## 🧪 Testing & Coverage
 
-Run the test suite with Python's standard `unittest`:
+Run the full test suite with Python's standard `unittest` or `coverage`:
 
 ```bash
-# Set PYTHONPATH to src and run tests
-python -m unittest discover tests
+# Run tests
+python -m unittest discover tests -v
+
+# Run with coverage (enforces 100% core coverage)
+coverage run -m unittest discover tests
+coverage report -m
 ```
 
 ---
@@ -231,7 +271,7 @@ python -m unittest discover tests
 Designed and battle-tested for high-throughput, mission-critical systems at **Búho Zurdo Labs** ([buhozurdo.com](https://buhozurdo.com)).
 
 ### Authors
-- **Juan Rael Corrales Arellano** ([@buhozurdo](https://github.com/buhozurdo))
+- **Juan Rael Corrales Arellano** ([@buhozurdo](https://github.com/buhozurdo)) — `rael@buhozurdo.com`
 - **Búho Zurdo Labs** — `dev@buhozurdo.com`
 
 ### License

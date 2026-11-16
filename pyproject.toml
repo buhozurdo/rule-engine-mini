@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "buhozurdo-rule-engine-mini"
-version = "0.1.0"
+version = "0.2.0"
 description = "Deterministic AST business rules evaluator in pure Python — Zero eval(), sub-microsecond latency, safe JSON logic."
 readme = "README.md"
 license = { text = "MIT" }
@@ -22,11 +22,21 @@ classifiers = [
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "Topic :: Software Development :: Libraries :: Python Modules",
-    "Topic :: Security"
+    "Topic :: Security",
+    "Typing :: Typed"
 ]
 requires-python = ">=3.9"
 dependencies = []
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    "mypy>=1.0.0",
+    "ruff>=0.1.0"
+]
 
 [project.urls]
 Homepage = "https://buhozurdo.com/blog/rule-engine-mini-json-logic/"
