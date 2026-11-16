@@ -3,11 +3,25 @@ import operator
 from functools import lru_cache
 from typing import Any, Callable, Dict, List, Mapping, Optional, Sequence, Tuple, Union
 
+_MISSING = object()
+
 
 @lru_cache(maxsize=1024)
 def _split_path(path: str) -> tuple:
     """Pre-splits and caches dot-separated property paths."""
     return tuple(path.split("."))
+
+
+def _get_child(container: Any, key: str) -> Any:
+    """Extract a key or numeric index from a container without raising exceptions."""
+    if isinstance(container, (dict, Mapping)):
+        return container[key] if key in container else _MISSING
+    if isinstance(container, Sequence) and not isinstance(container, (str, bytes)):
+        if key.isdigit():
+            idx = int(key)
+            if idx < len(container):
+                return container[idx]
+    return _MISSING
 
 
 # C-level comparison dispatch table
@@ -66,25 +80,11 @@ class RuleEvaluator:
         if not path:
             return context
 
-        # Fast path for flat dictionaries (single key without dots)
-        if "." not in path:
-            if isinstance(context, dict):
-                return context.get(path, default)
-            return context[path] if isinstance(context, Mapping) and path in context else default
-
         current: Any = context
         for part in _split_path(path):
-            if isinstance(current, (dict, Mapping)):
-                if part in current:
-                    current = current[part]
-                    continue
+            current = _get_child(current, part)
+            if current is _MISSING:
                 return default
-            if isinstance(current, Sequence) and not isinstance(current, (str, bytes)):
-                if part.isdigit() and int(part) < len(current):
-                    current = current[int(part)]
-                    continue
-                return default
-            return default
 
         return current
 

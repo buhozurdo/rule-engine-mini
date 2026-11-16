@@ -23,7 +23,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install --only-binary :all: -r requirements.txt
+          pip install --only-binary :all: coverage==7.6.12 iniconfig==2.0.0 packaging==24.2 pluggy==1.5.0 pytest==8.3.4 pytest-cov==6.0.0
 
       - name: Run tests with coverage
         run: python -m pytest tests/ --cov=rule_engine_mini --cov-branch --cov-report=xml
