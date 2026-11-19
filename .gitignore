@@ -1,3 +1,6 @@
+# Release draft notes
+RELEASE.md
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
