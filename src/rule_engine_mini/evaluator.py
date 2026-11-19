@@ -3,6 +3,13 @@ import operator
 from functools import lru_cache
 from typing import Any, Callable, Dict, List, Mapping, Optional, Sequence, Tuple, Union
 
+from .exceptions import (
+    EvaluationRecursionError,
+    OperatorNotFoundError,
+    RuleEngineError,
+    RuleValidationError,
+)
+
 _MISSING = object()
 
 
@@ -37,6 +44,19 @@ _COMPARISON_OPS: Dict[str, Callable[[Any, Any], bool]] = {
 }
 
 _MATH_OPS = {"+", "-", "*", "/", "%", "min", "max"}
+
+_BUILTIN_OPS = {
+    "var",
+    "and",
+    "or",
+    "not",
+    "!",
+    "!!",
+    "in",
+    "if",
+    *_COMPARISON_OPS.keys(),
+    *_MATH_OPS,
+}
 
 
 class RuleEvaluator:
@@ -236,7 +256,7 @@ class RuleEvaluator:
             return True
 
         if depth > self.max_depth:
-            raise ValueError(f"Rule evaluation exceeded maximum depth limit of {self.max_depth}")
+            raise EvaluationRecursionError(self.max_depth)
 
         op, args = next(iter(node.items()))
 
@@ -258,3 +278,104 @@ class RuleEvaluator:
             return self._eval_custom(op, args, context)
 
         return False
+
+    def _validate_arity(self, op: str, args: Any, path: str, node: Any) -> None:
+        if op in _COMPARISON_OPS or op == "in" or op in ("/", "%"):
+            if not isinstance(args, list) or len(args) != 2:
+                raise RuleValidationError(
+                    f"Operator '{op}' requires exactly 2 arguments", path=path, node=node
+                )
+        elif op in ("not", "!", "!!"):
+            if isinstance(args, list) and len(args) > 1:
+                raise RuleValidationError(
+                    f"Operator '{op}' accepts at most 1 argument, got {len(args)}",
+                    path=path,
+                    node=node,
+                )
+        elif op == "if":
+            if not isinstance(args, list) or len(args) < 2:
+                raise RuleValidationError(
+                    "Operator 'if' requires at least 2 arguments [condition, then, ...]",
+                    path=path,
+                    node=node,
+                )
+        elif op == "-":
+            if isinstance(args, list) and len(args) > 2:
+                raise RuleValidationError(
+                    f"Operator '-' accepts at most 2 arguments, got {len(args)}",
+                    path=path,
+                    node=node,
+                )
+        elif op == "var":
+            if isinstance(args, list) and len(args) > 2:
+                raise RuleValidationError(
+                    f"Operator 'var' accepts at most 2 arguments [path, default], got {len(args)}",
+                    path=path,
+                    node=node,
+                )
+
+    def _validate_operator(self, op: Any, args: Any, path: str, depth: int, node: Any) -> None:
+        if not isinstance(op, str):
+            raise RuleValidationError(
+                f"Operator key must be a string, got {type(op).__name__}",
+                path=path,
+                node=node,
+            )
+
+        if op not in _BUILTIN_OPS and op not in self._custom_ops:
+            raise OperatorNotFoundError(op, path=path, node=node)
+
+        self._validate_arity(op, args, path, node)
+
+        sub_path = f"{path}.{op}" if path != "$" else f"$.{op}"
+        if isinstance(args, list):
+            for i, arg in enumerate(args):
+                self._validate_node(arg, f"{sub_path}[{i}]", depth + 1)
+        elif isinstance(args, dict):
+            self._validate_node(args, sub_path, depth + 1)
+
+    def _validate_node(self, node: Any, path: str, depth: int) -> None:
+        if depth > self.max_depth:
+            raise EvaluationRecursionError(self.max_depth, path=path)
+
+        if isinstance(node, list):
+            for i, item in enumerate(node):
+                self._validate_node(item, f"{path}[{i}]", depth + 1)
+            return
+
+        if not isinstance(node, dict):
+            return
+
+        if not node:
+            return
+
+        if len(node) > 1:
+            keys = list(node.keys())
+            raise RuleValidationError(
+                f"Rule node must have exactly 1 operator key, found {len(node)}: {keys}",
+                path=path,
+                node=node,
+            )
+
+        op, args = next(iter(node.items()))
+        self._validate_operator(op, args, path, depth, node)
+
+    def validate(self, rule: Any, strict: bool = True) -> bool:
+        """
+        Validate an AST rule structure without executing it.
+
+        :param rule: The rule AST node to validate.
+        :param strict: If True, raises RuleValidationError or OperatorNotFoundError
+                       on failure. If False, returns False on any structural error.
+        :return: True if the rule AST is valid, False otherwise (when strict=False).
+        :raises RuleValidationError: If the rule is structurally invalid and strict=True.
+        :raises OperatorNotFoundError: If an unknown operator is referenced and strict=True.
+        :raises EvaluationRecursionError: If recursion depth exceeds max_depth and strict=True.
+        """
+        try:
+            self._validate_node(rule, path="$", depth=0)
+            return True
+        except RuleEngineError:
+            if strict:
+                raise
+            return False

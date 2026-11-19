@@ -174,6 +174,24 @@ evaluator.evaluate({">": [{"var": "score"}, 50]}, {"score": "invalid"})  # False
 evaluator.evaluate({"/": [100, 0]}, {})  # None (ZeroDivisionError protected)
 ```
 
+### 6. Static Rule Validation & Error Inspection (`validate`)
+Validate AST rules before storing them in your database or sending them to production:
+
+```python
+from rule_engine_mini import RuleEvaluator, RuleValidationError, OperatorNotFoundError
+
+evaluator = RuleEvaluator()
+
+# Non-strict mode: returns boolean
+is_valid = evaluator.validate({">": [{"var": "amount"}, 100]}, strict=False)  # True
+
+# Strict mode: raises descriptive exceptions with exact AST error path
+try:
+    evaluator.validate({"and": [{">": [10]}, {"unknown": [1]}]}, strict=True)
+except RuleValidationError as e:
+    print(f"Error at {e.path}: {e}")
+```
+
 ---
 
 ## 📖 Supported Operators
