@@ -9,12 +9,15 @@ from .exceptions import (
     RuleEngineError,
     RuleValidationError,
 )
+from .trace import ExecutionTrace, TraceStep
 
-__version__ = "0.3.0"
+__version__ = "0.5.0"
 __all__ = [
     "RuleEvaluator",
     "RuleEngineError",
     "RuleValidationError",
     "OperatorNotFoundError",
     "EvaluationRecursionError",
+    "ExecutionTrace",
+    "TraceStep",
 ]

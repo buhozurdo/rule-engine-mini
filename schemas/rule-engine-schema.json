@@ -1,0 +1,121 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/BuhoZurdo/rule-engine-mini/schemas/rule-engine-schema.json",
+  "title": "RuleEngineMiniAST",
+  "description": "Formal JSON Schema specification for rule-engine-mini JSON Logic Abstract Syntax Trees (AST).",
+  "$ref": "#/$defs/ruleNode",
+  "$defs": {
+    "ruleNode": {
+      "description": "Any valid rule node: primitive literal, list of rules, or a single-key operator object.",
+      "oneOf": [
+        { "type": "boolean" },
+        { "type": "number" },
+        { "type": "string" },
+        { "type": "null" },
+        {
+          "type": "array",
+          "items": { "$ref": "#/$defs/ruleNode" }
+        },
+        {
+          "type": "object",
+          "minProperties": 0,
+          "maxProperties": 1,
+          "patternProperties": {
+            "^(var|and|or|not|!|!!|==|===|!=|!==|<|<=|>|>=|in|if|\\+|-|\\*|/|%|min|max|some|all|none|filter|map|merge|cat|substr|missing|missing_some|[a-zA-Z0-9_-]+)$": {
+              "oneOf": [
+                { "$ref": "#/$defs/ruleNode" },
+                {
+                  "type": "array",
+                  "items": { "$ref": "#/$defs/ruleNode" }
+                }
+              ]
+            }
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "varNode": {
+      "type": "object",
+      "required": ["var"],
+      "properties": {
+        "var": {
+          "oneOf": [
+            { "type": "string" },
+            {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 2,
+              "items": [
+                { "type": "string" },
+                { "$ref": "#/$defs/ruleNode" }
+              ]
+            }
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "logicalNode": {
+      "type": "object",
+      "oneOf": [
+        {
+          "required": ["and"],
+          "properties": {
+            "and": {
+              "type": "array",
+              "items": { "$ref": "#/$defs/ruleNode" }
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "required": ["or"],
+          "properties": {
+            "or": {
+              "type": "array",
+              "items": { "$ref": "#/$defs/ruleNode" }
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "required": ["!"],
+          "properties": { "!": { "$ref": "#/$defs/ruleNode" } },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "comparisonNode": {
+      "type": "object",
+      "patternProperties": {
+        "^(==|===|!=|!==|<|<=|>|>=|in)$": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "items": { "$ref": "#/$defs/ruleNode" }
+        }
+      },
+      "minProperties": 1,
+      "maxProperties": 1,
+      "additionalProperties": false
+    },
+    "collectionNode": {
+      "type": "object",
+      "patternProperties": {
+        "^(some|all|none|filter|map)$": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "items": [
+            { "$ref": "#/$defs/ruleNode" },
+            { "$ref": "#/$defs/ruleNode" }
+          ]
+        }
+      },
+      "minProperties": 1,
+      "maxProperties": 1,
+      "additionalProperties": false
+    }
+  }
+}
